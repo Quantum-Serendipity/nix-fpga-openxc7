@@ -33,8 +33,10 @@ stdenv.mkDerivation {
   # prjxray and its bundled third-party deps are missing these includes.
   env.CXXFLAGS = "-include cstdint -Wno-error=free-nonheap-object";
 
-  patchPhase = ''
-    sed -i 's/cmake /cmake -Wno-deprecated /g' Makefile
+  postPatch = ''
+    substituteInPlace Makefile \
+      --replace-fail "cmake " "cmake -Wno-deprecated "
+    # Insert compile option at line 29 of lib/CMakeLists.txt (positional insert)
     sed -i '29 itarget_compile_options(libprjxray PUBLIC "-Wno-deprecated")' lib/CMakeLists.txt
   '';
 

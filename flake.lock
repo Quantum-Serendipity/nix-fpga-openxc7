@@ -7,14 +7,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1771763919,
-        "narHash": "sha256-HMa2V860Zmv6s+QQ1ERa2+ps8xgJJfB+KnbZC4OhA4Q=",
-        "path": "/home/colin/Repos/nix-litex",
-        "type": "path"
+        "lastModified": 1771773662,
+        "narHash": "sha256-ncz6IH7/Nk677IbPweb9wBvcBGpB1soNvLv2B4y0Rlk=",
+        "owner": "Quantum-Serendipity",
+        "repo": "nix-litex",
+        "rev": "1a8bab3ae09f97b21851cced11c306addfb9697a",
+        "type": "github"
       },
       "original": {
-        "path": "/home/colin/Repos/nix-litex",
-        "type": "path"
+        "owner": "Quantum-Serendipity",
+        "repo": "nix-litex",
+        "type": "github"
       }
     },
     "nixpkgs": {

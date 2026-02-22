@@ -3,9 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    # Switch to github:Quantum-Serendipity/nix-litex once flake.nix is pushed
     nix-litex = {
-      url = "path:/home/colin/Repos/nix-litex";
+      url = "github:Quantum-Serendipity/nix-litex";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -14,42 +13,35 @@
     let
       supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+      pkgsFor = system: import nixpkgs {
+        inherit system;
+        overlays = [ self.overlays.default ];
+      };
     in
     {
       overlays.default = nixpkgs.lib.composeManyExtensions [
         nix-litex.overlays.default
-        (final: prev: {
-          openxc7 = rec {
+        (final: prev:
+          let
             nextpnr-xilinx = final.callPackage ./pkgs/nextpnr-xilinx.nix {};
-            chipdb-artix7 = final.callPackage ./pkgs/nextpnr-xilinx-chipdb.nix {
-              backend = "artix7";
-              inherit nextpnr-xilinx;
-            };
-            chipdb-kintex7 = final.callPackage ./pkgs/nextpnr-xilinx-chipdb.nix {
-              backend = "kintex7";
-              inherit nextpnr-xilinx;
-            };
-            chipdb-spartan7 = final.callPackage ./pkgs/nextpnr-xilinx-chipdb.nix {
-              backend = "spartan7";
-              inherit nextpnr-xilinx;
-            };
-            chipdb-zynq7 = final.callPackage ./pkgs/nextpnr-xilinx-chipdb.nix {
-              backend = "zynq7";
-              inherit nextpnr-xilinx;
-            };
             fasm = final.python3Packages.callPackage ./pkgs/fasm.nix {};
-            prjxray = final.callPackage ./pkgs/prjxray.nix { inherit fasm; };
-          };
-        })
+            mkChipdb = backend: final.callPackage ./pkgs/nextpnr-xilinx-chipdb.nix {
+              inherit backend nextpnr-xilinx;
+            };
+          in {
+            openxc7 = {
+              inherit nextpnr-xilinx fasm;
+              chipdb-artix7   = mkChipdb "artix7";
+              chipdb-kintex7  = mkChipdb "kintex7";
+              chipdb-spartan7 = mkChipdb "spartan7";
+              chipdb-zynq7    = mkChipdb "zynq7";
+              prjxray = final.callPackage ./pkgs/prjxray.nix { inherit fasm; };
+            };
+          })
       ];
 
       packages = forAllSystems (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [ self.overlays.default ];
-          };
-        in {
+        let pkgs = pkgsFor system; in {
           inherit (pkgs.openxc7)
             nextpnr-xilinx chipdb-artix7 chipdb-kintex7 chipdb-spartan7
             chipdb-zynq7 fasm prjxray;
@@ -57,10 +49,7 @@
 
       devShells = forAllSystems (system:
         let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [ self.overlays.default ];
-          };
+          pkgs = pkgsFor system;
           inherit (pkgs.openxc7) nextpnr-xilinx chipdb-artix7 prjxray;
         in {
           default = pkgs.mkShell {
@@ -86,6 +75,10 @@
               pkgs.python3Packages.litesata
               pkgs.python3Packages.litejesd204b
               pkgs.python3Packages.litei2c
+
+              # Build tools (LiteX calls make/gcc via subprocess)
+              pkgs.gnumake
+              pkgs.gcc
 
               # Simulation (litex_sim)
               pkgs.verilator
