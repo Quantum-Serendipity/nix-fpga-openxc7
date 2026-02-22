@@ -1,25 +1,5 @@
 {
   "nodes": {
-    "nix-litex": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1771773662,
-        "narHash": "sha256-ncz6IH7/Nk677IbPweb9wBvcBGpB1soNvLv2B4y0Rlk=",
-        "owner": "Quantum-Serendipity",
-        "repo": "nix-litex",
-        "rev": "1a8bab3ae09f97b21851cced11c306addfb9697a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Quantum-Serendipity",
-        "repo": "nix-litex",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1771207753,
@@ -38,7 +18,6 @@
     },
     "root": {
       "inputs": {
-        "nix-litex": "nix-litex",
         "nixpkgs": "nixpkgs"
       }
     }
